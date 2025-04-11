@@ -28,7 +28,10 @@ async function getData(str) {
     const request = await fetch(url + str);
     const json = await request.json();
     for (let i = 0; i < json.count; ++i) {
-        console.log(json.results[i].id + ": " +  json.results[i].title);
+        try {
+            console.log(json.results[i].id + ": " + json.results[i].title);
+        } catch (TypeError) {}
+
     }
     const id = await askQuestion("Which id book would you like to read?");
     const newRequest = await fetch(bookurl + id); 
