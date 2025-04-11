@@ -34,6 +34,7 @@ async function getData(str) {
     const newRequest = await fetch(bookurl + id); 
     const requestJson = await newRequest.json();
     parsedurl = requestJson["formats"]["text/plain; charset=us-ascii"]
+    console.log(parsedurl);
     const book = await fetch(parsedurl);
     const utf = await book.text();
     return utf
@@ -51,11 +52,10 @@ async function mainLoop(){
         const answer = await askQuestion("Which recent book would you like to read?");
         printBook(cache[answer])
     } else{
-        book = getData(answer);
-        // parse and print book
-        cache = await cacheControl(book, cache);
+        book = await getData(answer);
+        //cache = await cacheControl(book, cache);
         printBook(book);
     }
 }
 
-getData("sherlock");
+mainLoop();
