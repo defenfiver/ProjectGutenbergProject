@@ -1,3 +1,5 @@
+// Created by Cullen Simkins, Caleb Taylor, and Sam Uptigrove
+
 const url = 'https://gutendex.com/books?search=';
 const bookurl = 'https://gutendex.com/books/'
 const readline = require('readline')
@@ -43,12 +45,14 @@ async function cacheControl(book, cache, title){
 async function getData(str) {
     const request = await fetch(url + str);
     const json = await request.json();
+    let idArray = [];
     for (let i = 0; i < json.count; ++i) {
         try {
             console.log(json.results[i].id + ": " + json.results[i].title);
+            idArray.push(json.results[i].id)
         } catch (TypeError) {}
-
     }
+
     const id = await askQuestion("Which id book would you like to read?");
     const newRequest = await fetch(bookurl + id); 
     const requestJson = await newRequest.json();
@@ -60,31 +64,36 @@ async function getData(str) {
     console.log(book)
     const utf = await book.text();
     return [utf, title]
+
 }
+
+   
 
 async function printBook(book){
     book = book.split(" ")
-    let book_with_pages = '';
-    // let count = 0;
     let page_num = 1;
+    let page = "";
+    console.log("\n\n\n\n\n\n\n\n\nPress enter to get to the next page")
     for (let i = 0; i < book.length; i++) {
         // if 250 words, then new page starts
         if (i % 250 == 0){
-            book_with_pages += '\n\n\n ----------END OF PAGE ' + page_num + '----------\n\n\n';
+            page += '\n\n\n ----------END OF PAGE ' + page_num + '----------\n\n\n';
             page_num += 1;
+            console.log(page);
+            x = await askQuestion("")
+            page = "";
         }
         // This checks to see if it is the first word on the page and adds the word to the variable  
         else if((i-1) % 250 == 0){
             const word = book[i];
-            book_with_pages += word;
+            page += word;
         }
         // This adds a space for every word that is not the first on a page
         else {
             const word = " " + book[i];
-            book_with_pages += word
+            page += word
         }
     }
-    console.log(book_with_pages);
 }
 
 async function mainLoop(){
@@ -103,7 +112,6 @@ async function mainLoop(){
             title = the_answer[1];
             book = the_answer[0];
             cache = await cacheControl(book, cache, title);
-            printBook(book);
         }
     }
 }
