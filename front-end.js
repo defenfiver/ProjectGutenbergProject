@@ -37,8 +37,6 @@ async function getData(str) {
     const newRequest = await fetch(bookurl + id); 
     const requestJson = await newRequest.json();
     parsedurl = requestJson["formats"]["text/plain; charset=us-ascii"]
-    console.log(parsedurl);
-
     const book = await fetch(parsedurl);
     const utf = await book.text();
     return utf
@@ -46,27 +44,29 @@ async function getData(str) {
 
 async function printBook(book){
     book = book.split(" ")
-    let book_with_pages = '';
-    // let count = 0;
     let page_num = 1;
+    let page = "";
+    console.log("Press enter to get to the next page")
     for (let i = 0; i < book.length; i++) {
         // if 250 words, then new page starts
         if (i % 250 == 0){
-            book_with_pages += '\n\n\n ----------END OF PAGE ' + page_num + '----------\n\n\n';
+            page += '\n\n\n ----------END OF PAGE ' + page_num + '----------\n\n\n';
             page_num += 1;
+            console.log(page);
+            x = await askQuestion("")
+            page = "";
         }
         // This checks to see if it is the first word on the page and adds the word to the variable  
         else if((i-1) % 250 == 0){
             const word = book[i];
-            book_with_pages += word;
+            page += word;
         }
         // This adds a space for every word that is not the first on a page
         else {
             const word = " " + book[i];
-            book_with_pages += word
+            page += word
         }
     }
-    console.log(book_with_pages);
 }
 
 async function mainLoop(){
