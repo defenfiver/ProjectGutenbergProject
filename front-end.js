@@ -13,16 +13,32 @@ async function askQuestion(prompt) {
     return new Promise(resolve => {
         rl.question(prompt, answer => {
             resolve(answer);
-        })
+        });
     });
 }
 
-async function cacheControl(book, cache){
-    //check if 10 books
-    //if 10, add delete oldest
-    // add new {book}
+let cache = [];
+async function cacheControl(book, cache, title){
+    cache = cache
+    title = title 
+    //check if 10 books if 10, add book and delete oldest
+    if (cache.length == 10) {
+        cache.shift();
+        cache.push({
+            key: title,
+            value: book
+        });
+    } 
+    // if less than 10 books, add new book
+    else {
+        cache.push({
+            key: title,
+            value: book
+        });
+    }
+
     return cache;
-}
+ }
 
 async function getData(str) {
     const request = await fetch(url + str);
@@ -38,10 +54,12 @@ async function getData(str) {
     const requestJson = await newRequest.json();
     parsedurl = requestJson["formats"]["text/plain; charset=us-ascii"]
     console.log(parsedurl);
+    const title = requestJson.title;
 
     const book = await fetch(parsedurl);
+    console.log(book)
     const utf = await book.text();
-    return utf
+    return [utf, title]
 }
 
 async function printBook(book){
@@ -70,16 +88,23 @@ async function printBook(book){
 }
 
 async function mainLoop(){
-    const answer = await askQuestion("What is your search query? or enter .recent for your recent books");
-    cache = [];
-    if (answer == ".recent"){
-        console.log(cache);
-        const answer = await askQuestion("Which recent book would you like to read?");
-        printBook(cache[answer])
-    } else{
-        book = await getData(answer);
-        //cache = await cacheControl(book, cache);
-        printBook(book);
+    while (true) {
+    // cache = [];
+        const answer = await askQuestion("What is your search query? or enter .recent for your recent books");
+        if (answer == ".recent"){
+            console.log(cache);
+            const answer = await askQuestion("What order in the queue (numbers: 0-9) is the book that you want");
+            const num = parseInt(answer)
+            // printBook(cache[answer])
+            printBook(cache[num].value)
+            // console.log(cache[num].value)
+        } else{
+            the_answer = await getData(answer)
+            title = the_answer[1];
+            book = the_answer[0];
+            cache = await cacheControl(book, cache, title);
+            printBook(book);
+        }
     }
 }
 
