@@ -1,3 +1,5 @@
+// Created by Cullen Simkins, Caleb Taylor, and Sam Uptigrove
+
 const url = 'https://gutendex.com/books?search=';
 const bookurl = 'https://gutendex.com/books/'
 const readline = require('readline')
